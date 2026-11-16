@@ -18,8 +18,20 @@
   const copyToast = document.getElementById('copy-toast');
   const copyFallback = document.getElementById('copy-fallback');
   const copyText = document.getElementById('copy-text');
+  const discountInput = document.getElementById('discount-rate');
+  const vatInput = document.getElementById('vat-rate');
+  const currencySelect = document.getElementById('currency-select');
+  const subtotalOutput = document.getElementById('subtotal');
+  const discountTotalOutput = document.getElementById('discount-total');
+  const discountedTotalOutput = document.getElementById('discounted-total');
+  const vatTotalOutput = document.getElementById('vat-total');
+  const discountTotalRow = document.getElementById('discount-total-row');
+  const discountedTotalRow = document.getElementById('discounted-total-row');
+  const vatTotalRow = document.getElementById('vat-total-row');
   const storageKey = 'smeta-za-5-minut-draft-v1';
   let toastTimer;
+
+  const currencySymbols = { KZT: '₸', RUB: '₽', USD: '$', EUR: '€' };
 
   const numberFormat = new Intl.NumberFormat('ru-RU', {
     maximumFractionDigits: 2,
@@ -41,7 +53,21 @@
 
   function formatMoney(value) {
     const safeValue = Number.isFinite(value) && value > 0 ? value : 0;
-    return numberFormat.format(safeValue) + ' ₸';
+    return numberFormat.format(safeValue) + ' ' + (currencySymbols[currencySelect.value] || currencySymbols.KZT);
+  }
+
+  function roundMoney(value) {
+    return Number.isFinite(value) && value > 0 ? Math.round(value) : 0;
+  }
+
+  function updateCurrencyLabels() {
+    const symbol = currencySymbols[currencySelect.value] || currencySymbols.KZT;
+    itemsBody.querySelectorAll('.price-currency').forEach(function (label) {
+      label.textContent = symbol;
+    });
+    itemsBody.querySelectorAll('.price-input').forEach(function (input) {
+      input.setAttribute('aria-label', 'Цена за единицу в ' + symbol);
+    });
   }
 
   function formatDocumentDate(value) {
@@ -105,7 +131,14 @@
     const priceInput = makeTextInput('Цена за единицу в тенге', '0', 'numeric-input price-input');
     priceInput.value = values && typeof values.price === 'string' ? values.price : '';
     priceInput.inputMode = 'decimal';
-    priceCell.append(priceInput);
+    const priceWrap = document.createElement('div');
+    priceWrap.className = 'price-input-wrap';
+    const priceCurrency = document.createElement('span');
+    priceCurrency.className = 'price-currency';
+    priceCurrency.textContent = currencySymbols[currencySelect.value] || currencySymbols.KZT;
+    priceCurrency.setAttribute('aria-hidden', 'true');
+    priceWrap.append(priceInput, priceCurrency);
+    priceCell.append(priceWrap);
 
     const amountCell = makeCell('Сумма строки', 'amount-cell');
     const amount = document.createElement('output');
@@ -153,6 +186,9 @@
       number: numberInput.value,
       date: dateInput.value,
       comment: commentInput.value,
+      discount: discountInput.value,
+      vat: vatInput.value,
+      currency: currencySelect.value,
       items: rows
     };
     try {
@@ -171,6 +207,9 @@
     numberInput.value = typeof draft.number === 'string' ? draft.number : '';
     dateInput.value = typeof draft.date === 'string' && draft.date ? draft.date : todayAsLocalDate();
     commentInput.value = typeof draft.comment === 'string' ? draft.comment : '';
+    discountInput.value = typeof draft.discount === 'string' ? draft.discount : '0';
+    vatInput.value = typeof draft.vat === 'string' ? draft.vat : '0';
+    currencySelect.value = Object.prototype.hasOwnProperty.call(currencySymbols, draft.currency) ? draft.currency : 'KZT';
 
     const storedItems = Array.isArray(draft.items) ? draft.items : [];
     if (storedItems.length) {
@@ -194,26 +233,22 @@
 
   function makeWhatsAppText() {
     const lines = ['Смета № ' + (numberInput.value.trim() || '—') + ' от ' + formatDocumentDate(dateInput.value), ''];
+    const totals = calculateTotals(false);
     itemsBody.querySelectorAll('.item-row').forEach(function (row) {
       const name = row.querySelector('.name-input').value.trim();
       if (!name) return;
       const quantity = readNumber(row.querySelector('.quantity-input').value);
       const unit = row.querySelector('.item-unit').value;
       const price = readNumber(row.querySelector('.price-input').value);
-      const lineTotal = quantity * price;
-      lines.push('• ' + name + ' — ' + numberFormat.format(quantity) + ' ' + unit + ' × ' + formatMoney(price) + ' = ' + formatMoney(Number.isFinite(lineTotal) ? lineTotal : 0));
+      const lineTotal = roundMoney(quantity * price);
+      lines.push('• ' + name + ' — ' + numberFormat.format(quantity) + ' ' + unit + ' × ' + formatMoney(roundMoney(price)) + ' = ' + formatMoney(lineTotal));
     });
 
-    const optionalFields = [
-      { selector: '[name="discount"], .discount-field input, .discount-field select', label: 'Скидка' },
-      { selector: '[name="vat"], .vat-field input, .vat-field select', label: 'НДС' }
-    ];
-    optionalFields.forEach(function (item) {
-      const field = document.querySelector(item.selector);
-      if (field && String(field.value || '').trim()) lines.push(item.label + ': ' + String(field.value).trim());
-    });
-
-    lines.push('', 'Итого к оплате: ' + grandTotal.textContent);
+    lines.push('', 'Сумма: ' + formatMoney(totals.subtotal));
+    if (totals.discount > 0) lines.push('Скидка (' + numberFormat.format(totals.discountRate) + '%): −' + formatMoney(totals.discount));
+    if (totals.discountedSubtotal > 0) lines.push('Сумма со скидкой: ' + formatMoney(totals.discountedSubtotal));
+    if (totals.vat > 0) lines.push('НДС (' + numberFormat.format(totals.vatRate) + '%): ' + formatMoney(totals.vat));
+    lines.push('', 'Итого к оплате: ' + formatMoney(totals.total));
     return lines.join('\n');
   }
 
@@ -232,17 +267,41 @@
     copyText.select();
   }
 
-  function recalculate() {
-    let total = 0;
+  function resizeComment() {
+    commentInput.style.height = 'auto';
+    commentInput.style.height = Math.max(commentInput.scrollHeight, 100) + 'px';
+  }
+
+  function calculateTotals(updateRows) {
+    let subtotal = 0;
     itemsBody.querySelectorAll('.item-row').forEach(function (row) {
       const quantity = readNumber(row.querySelector('.quantity-input').value);
       const price = readNumber(row.querySelector('.price-input').value);
-      const lineTotal = quantity * price;
-      const safeLineTotal = Number.isFinite(lineTotal) ? lineTotal : 0;
-      row.querySelector('.line-total').textContent = formatMoney(safeLineTotal);
-      total += safeLineTotal;
+      const lineTotal = roundMoney(quantity * price);
+      if (updateRows) row.querySelector('.line-total').textContent = formatMoney(lineTotal);
+      subtotal = roundMoney(subtotal + lineTotal);
     });
-    grandTotal.textContent = formatMoney(Number.isFinite(total) ? total : 0);
+
+    const discountRate = Math.min(readNumber(discountInput.value), 100);
+    const vatRate = readNumber(vatInput.value);
+    const discount = roundMoney(subtotal * discountRate / 100);
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const vat = roundMoney(discountedSubtotal * vatRate / 100);
+    const total = roundMoney(discountedSubtotal + vat);
+
+    return { subtotal, discountRate, discount, discountedSubtotal, vatRate, vat, total };
+  }
+
+  function recalculate() {
+    const totals = calculateTotals(true);
+    subtotalOutput.textContent = formatMoney(totals.subtotal);
+    discountTotalOutput.textContent = '−' + formatMoney(totals.discount);
+    discountedTotalOutput.textContent = formatMoney(totals.discountedSubtotal);
+    vatTotalOutput.textContent = formatMoney(totals.vat);
+    grandTotal.textContent = formatMoney(totals.total);
+    discountTotalRow.hidden = totals.discount === 0;
+    discountedTotalRow.hidden = totals.discountedSubtotal === 0;
+    vatTotalRow.hidden = totals.vat === 0;
   }
 
   addButton.addEventListener('click', function () {
@@ -279,6 +338,14 @@
   });
 
   itemsBody.addEventListener('change', saveDraft);
+  discountInput.addEventListener('input', recalculate);
+  discountInput.addEventListener('change', recalculate);
+  vatInput.addEventListener('input', recalculate);
+  vatInput.addEventListener('change', recalculate);
+  currencySelect.addEventListener('change', function () {
+    updateCurrencyLabels();
+    recalculate();
+  });
   estimateForm.addEventListener('input', function () {
     updatePrintHeading();
     saveDraft();
@@ -301,6 +368,10 @@
     numberInput.value = nextNumber;
     dateInput.value = todayAsLocalDate();
     commentInput.value = '';
+    discountInput.value = '0';
+    vatInput.value = '0';
+    currencySelect.value = 'KZT';
+    commentInput.style.height = '';
     itemsBody.replaceChildren();
     addItem(false);
     copyFallback.hidden = true;
@@ -322,12 +393,11 @@
     }
     showManualCopy(text);
   });
-  commentInput.addEventListener('input', function () {
-    commentInput.style.height = 'auto';
-    commentInput.style.height = Math.max(commentInput.scrollHeight, 100) + 'px';
-  });
-  updatePrintHeading();
+  commentInput.addEventListener('input', resizeComment);
   if (!restoreDraft()) addItem(false);
+  updateCurrencyLabels();
+  resizeComment();
+  updatePrintHeading();
   recalculate();
   saveDraft();
 }());

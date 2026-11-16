@@ -76,12 +76,38 @@
         <button class="button button-secondary add-button" id="add-item" type="button">
           <span aria-hidden="true">＋</span> Добавить позицию
         </button>
+
+        <div class="adjustments-grid" aria-label="Скидка, НДС и валюта">
+          <label class="field discount-field">
+            <span>Скидка, %</span>
+            <input id="discount-rate" name="discount" type="text" inputmode="decimal" value="0" aria-label="Скидка в процентах">
+          </label>
+          <label class="field vat-field">
+            <span>НДС, %</span>
+            <input id="vat-rate" name="vat" type="text" inputmode="decimal" value="0" aria-label="НДС в процентах">
+          </label>
+          <label class="field currency-field">
+            <span>Валюта</span>
+            <select id="currency-select" name="currency" aria-label="Валюта сметы">
+              <option value="KZT">₸</option>
+              <option value="RUB">₽</option>
+              <option value="USD">$</option>
+              <option value="EUR">€</option>
+            </select>
+          </label>
+        </div>
       </section>
 
       <section class="total-panel" aria-live="polite" aria-atomic="true">
-        <div>
+        <div class="total-content">
           <p class="total-label">Итого к оплате</p>
           <p class="total-caption">Общая сумма по всем позициям</p>
+          <div class="totals-breakdown">
+            <div class="total-row"><span>Сумма</span><output id="subtotal">0 ₸</output></div>
+            <div id="discount-total-row" class="total-row" hidden><span>Скидка</span><output id="discount-total">0 ₸</output></div>
+            <div id="discounted-total-row" class="total-row" hidden><span>Сумма со скидкой</span><output id="discounted-total">0 ₸</output></div>
+            <div id="vat-total-row" class="total-row" hidden><span>НДС</span><output id="vat-total">0 ₸</output></div>
+          </div>
         </div>
         <output id="grand-total" class="grand-total" for="items-body">0 ₸</output>
       </section>
