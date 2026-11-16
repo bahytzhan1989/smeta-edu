@@ -23,7 +23,7 @@ body {
   line-height: 1.45;
 }
 
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button { color: inherit; }
 
 .app-shell {
@@ -95,6 +95,20 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
   color: var(--ink);
   transition: border-color .15s, box-shadow .15s;
 }
+.field textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #dce5df;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+.field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(25 135 106 / 12%); }
+.field textarea::placeholder { color: #a0aaa4; }
 .field input::placeholder, .item-input::placeholder { color: #a0aaa4; }
 .field input:focus, .item-input:focus, .item-unit:focus {
   border-color: var(--accent);
@@ -156,8 +170,12 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
 }
 .button-secondary { border-color: #cfe5da; background: var(--accent-soft); color: var(--accent-dark); }
 .button-secondary:hover { background: #def0e7; }
+.button-primary { background: var(--accent); color: #fff; }
+.button-primary:hover { background: var(--accent-dark); }
 .add-button { margin-top: 15px; }
 .add-button span { font-size: 20px; font-weight: 500; line-height: 1; }
+.form-actions { display: flex; justify-content: flex-end; padding-top: 2px; }
+.print-header, .document-signature { display: none; }
 
 .total-panel {
   display: flex;
@@ -224,8 +242,83 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
   .total-label { font-size: 17px; }
   .total-caption { max-width: 175px; font-size: 11px; }
   .grand-total { font-size: clamp(24px, 7vw, 32px); }
+  .form-actions .button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 14mm;
+}
+
+@media print {
+  :root { color-scheme: light; }
+  body { min-width: 0; background: #fff; color: #17231d; font-size: 9.5pt; }
+  .app-shell { width: 100%; max-width: none; margin: 0; padding: 0; }
+  .page-header, .page-footer, .section-number, .items-note, .add-button,
+  .remove-column, .remove-cell, .form-actions, .visually-hidden { display: none !important; }
+  .print-header { display: block; margin: 0 0 7mm; }
+  .print-header h1 { margin: 0; font-size: 19pt; letter-spacing: 0; }
+  #estimate-form { display: block; }
+  .panel, .total-panel {
+    margin: 0 0 5mm;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #17231d;
+    box-shadow: none;
+  }
+  .section-heading { margin: 0 0 2mm; }
+  .section-heading h2 { font-size: 12pt; }
+  .details-grid { grid-template-columns: 1fr 1fr; gap: 2mm 8mm; }
+  .field { display: block; color: #17231d; font-size: 8.5pt; font-weight: 600; }
+  .field input, .item-input, .item-unit, .field textarea {
+    height: auto;
+    min-height: 0;
+    padding: 1mm 0;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #17231d;
+    font-size: 9pt;
+    font-weight: 400;
+    appearance: none;
+    resize: none;
+  }
+  .field input::placeholder, .item-input::placeholder, .field textarea::placeholder { color: transparent; }
+  .items-panel { margin-bottom: 4mm; }
+  .items-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .items-table { display: table; }
+  .items-table thead { display: table-header-group; position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; white-space: normal; }
+  .items-table tbody { display: table-row-group; }
+  .items-table tr.item-row { display: table-row !important; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+  .items-table th, .items-table td { display: table-cell !important; }
+  .items-table td::before { display: none !important; content: none !important; }
+  .items-table th, .items-table td { padding: 2mm; border: 1px solid #66736b; color: #17231d; font-size: 8pt; }
+  .items-table th { background: #f2f5f3; font-weight: 700; }
+  .items-table th:first-child, .items-table td:first-child,
+  .items-table th:last-child, .items-table td:last-child { padding: 2mm; }
+  .name-column { width: 34%; }
+  .quantity-column { width: 13%; }
+  .unit-column { width: 13%; }
+  .price-column { width: 18%; }
+  .amount-column { width: 22%; }
+  .items-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .line-total { padding: 1mm 0; font-size: 8pt; text-align: right; }
+  .table-scroll { overflow: visible; }
+  .total-panel { display: flex; min-height: 0; justify-content: flex-end; gap: 12mm; margin: 0 0 5mm; padding: 0; }
+  .total-label { margin: 0; font-size: 12pt; }
+  .total-caption { display: none; }
+  .grand-total { font-size: 15pt; }
+  .comment-panel { margin-bottom: 5mm; }
+  .comment-field { display: block; }
+  .field textarea { width: 100%; min-height: 12mm; }
+  .document-signature { display: block; margin-top: 8mm; text-align: right; font-size: 9pt; }
+  .discount-field, .vat-field, .currency-field { display: none !important; }
 }

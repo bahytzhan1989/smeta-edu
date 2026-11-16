@@ -18,6 +18,10 @@
       </div>
     </header>
 
+    <header class="print-header" aria-hidden="true">
+      <h1>Смета № <span id="print-number">—</span> от <span id="print-date">—</span></h1>
+    </header>
+
     <form id="estimate-form" autocomplete="off">
       <section class="panel details-panel" aria-labelledby="details-title">
         <div class="section-heading">
@@ -81,6 +85,22 @@
         </div>
         <output id="grand-total" class="grand-total" for="items-body">0 ₸</output>
       </section>
+
+      <section class="panel comment-panel" aria-labelledby="comment-title">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">03</span>
+          <h2 id="comment-title">Комментарий</h2>
+        </div>
+        <label class="field comment-field">
+          <span>Сроки, условия оплаты</span>
+          <textarea id="estimate-comment" name="comment" rows="3" placeholder="Например: срок выполнения — 5 рабочих дней. Оплата — 50% аванс, 50% после выполнения."></textarea>
+        </label>
+      </section>
+
+      <div class="document-signature" aria-label="Подпись">Подпись ____________________</div>
+      <div class="form-actions">
+        <button class="button button-primary" id="save-pdf" type="button">Сохранить PDF</button>
+      </div>
     </form>
     <footer class="page-footer">Все расчёты выполняются в вашем браузере.</footer>
   </main>

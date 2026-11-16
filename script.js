@@ -5,6 +5,11 @@
   const addButton = document.getElementById('add-item');
   const grandTotal = document.getElementById('grand-total');
   const dateInput = document.getElementById('estimate-date');
+  const numberInput = document.querySelector('[name="estimate-number"]');
+  const commentInput = document.getElementById('estimate-comment');
+  const printNumber = document.getElementById('print-number');
+  const printDate = document.getElementById('print-date');
+  const savePdfButton = document.getElementById('save-pdf');
 
   const numberFormat = new Intl.NumberFormat('ru-RU', {
     maximumFractionDigits: 2,
@@ -27,6 +32,18 @@
   function formatMoney(value) {
     const safeValue = Number.isFinite(value) && value > 0 ? value : 0;
     return numberFormat.format(safeValue) + ' ₸';
+  }
+
+  function formatDocumentDate(value) {
+    if (!value) return '—';
+    const parts = value.split('-');
+    if (parts.length !== 3) return '—';
+    return parts[2] + '.' + parts[1] + '.' + parts[0];
+  }
+
+  function updatePrintHeading() {
+    printNumber.textContent = numberInput.value.trim() || '—';
+    printDate.textContent = formatDocumentDate(dateInput.value);
   }
 
   function makeCell(label, className) {
@@ -138,6 +155,15 @@
   });
 
   dateInput.value = todayAsLocalDate();
+  numberInput.addEventListener('input', updatePrintHeading);
+  dateInput.addEventListener('input', updatePrintHeading);
+  savePdfButton.addEventListener('click', function () { window.print(); });
+  document.getElementById('estimate-form').addEventListener('submit', function (event) { event.preventDefault(); });
+  commentInput.addEventListener('input', function () {
+    commentInput.style.height = 'auto';
+    commentInput.style.height = Math.max(commentInput.scrollHeight, 100) + 'px';
+  });
+  updatePrintHeading();
   addItem(false);
   recalculate();
 }());
