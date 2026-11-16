@@ -140,7 +140,6 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
 
 .items-panel { padding-bottom: 23px; }
 .catalog-quick-add { max-width: 440px; margin: 0 0 15px; }
-.catalog-quick-add > span { color: var(--accent); font-weight: 700; }
 .catalog-select {
   width: 100%;
   min-height: 46px;
