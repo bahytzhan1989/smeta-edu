@@ -139,6 +139,18 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
 }
 
 .items-panel { padding-bottom: 23px; }
+.catalog-quick-add { max-width: 440px; margin: 0 0 15px; }
+.catalog-select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid #dce5df;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+}
+.catalog-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(25 135 106 / 12%); }
 .items-heading { justify-content: space-between; }
 .items-note { color: var(--muted); font-size: 12px; }
 .table-scroll { width: 100%; overflow-x: auto; }
@@ -296,7 +308,7 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
   :root { color-scheme: light; }
   body { min-width: 0; background: #fff; color: #17231d; font-size: 9.5pt; }
   .app-shell { width: 100%; max-width: none; margin: 0; padding: 0; }
-  .page-header, .page-footer, .section-number, .items-note, .add-button,
+  .page-header, .page-footer, .section-number, .items-note, .catalog-quick-add, .add-button,
   .remove-column, .remove-cell, .form-actions, .copy-toast, .copy-fallback, .visually-hidden { display: none !important; }
   .print-header { display: block; margin: 0 0 7mm; }
   .print-header h1 { margin: 0; font-size: 19pt; letter-spacing: 0; }

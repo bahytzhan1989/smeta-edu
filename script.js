@@ -3,6 +3,7 @@
 
   const itemsBody = document.getElementById('items-body');
   const addButton = document.getElementById('add-item');
+  const serviceCatalogSelect = document.getElementById('service-catalog');
   const grandTotal = document.getElementById('grand-total');
   const dateInput = document.getElementById('estimate-date');
   const numberInput = document.querySelector('[name="estimate-number"]');
@@ -32,6 +33,11 @@
   let toastTimer;
 
   const currencySymbols = { KZT: '₸', RUB: '₽', USD: '$', EUR: '€' };
+  const serviceCatalog = {
+    website: { name: 'Разработка сайта', price: '50000' },
+    consultation: { name: 'Консультация', price: '5000' },
+    logo: { name: 'Дизайн логотипа', price: '15000' }
+  };
 
   const numberFormat = new Intl.NumberFormat('ru-RU', {
     maximumFractionDigits: 2,
@@ -128,14 +134,15 @@
     unitCell.append(unitSelect);
 
     const priceCell = makeCell('Цена', 'price-cell');
-    const priceInput = makeTextInput('Цена за единицу в тенге', '0', 'numeric-input price-input');
+    const currentCurrency = currencySymbols[currencySelect.value] || currencySymbols.KZT;
+    const priceInput = makeTextInput('Цена за единицу в ' + currentCurrency, '0', 'numeric-input price-input');
     priceInput.value = values && typeof values.price === 'string' ? values.price : '';
     priceInput.inputMode = 'decimal';
     const priceWrap = document.createElement('div');
     priceWrap.className = 'price-input-wrap';
     const priceCurrency = document.createElement('span');
     priceCurrency.className = 'price-currency';
-    priceCurrency.textContent = currencySymbols[currencySelect.value] || currencySymbols.KZT;
+    priceCurrency.textContent = currentCurrency;
     priceCurrency.setAttribute('aria-hidden', 'true');
     priceWrap.append(priceInput, priceCurrency);
     priceCell.append(priceWrap);
@@ -306,6 +313,20 @@
 
   addButton.addEventListener('click', function () {
     addItem(true);
+    saveDraft();
+  });
+
+  serviceCatalogSelect.addEventListener('change', function () {
+    const service = serviceCatalog[serviceCatalogSelect.value];
+    if (!service) return;
+    addItem(false, {
+      name: service.name,
+      quantity: '1',
+      unit: 'шт',
+      price: service.price
+    });
+    serviceCatalogSelect.value = '';
+    recalculate();
     saveDraft();
   });
 
