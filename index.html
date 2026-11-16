@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7f5">
+  <title>Смета за 5 минут</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="page-header">
+      <div class="brand-mark" aria-hidden="true">С</div>
+      <div>
+        <h1>Смета за 5 минут</h1>
+        <p class="subtitle">Добавьте позиции — суммы посчитаются автоматически.</p>
+      </div>
+    </header>
+
+    <form id="estimate-form" autocomplete="off">
+      <section class="panel details-panel" aria-labelledby="details-title">
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">01</span>
+          <h2 id="details-title">Реквизиты</h2>
+        </div>
+        <div class="details-grid">
+          <label class="field">
+            <span>От кого</span>
+            <input name="from" type="text" placeholder="Название компании или имя">
+          </label>
+          <label class="field">
+            <span>Для кого</span>
+            <input name="to" type="text" placeholder="Клиент или подразделение">
+          </label>
+          <label class="field">
+            <span>Номер сметы</span>
+            <input name="estimate-number" type="text" placeholder="Например, 001">
+          </label>
+          <label class="field">
+            <span>Дата</span>
+            <input id="estimate-date" name="date" type="date">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel items-panel" aria-labelledby="items-title">
+        <div class="section-heading items-heading">
+          <div class="section-heading-title">
+            <span class="section-number" aria-hidden="true">02</span>
+            <h2 id="items-title">Позиции</h2>
+          </div>
+          <span class="items-note">Укажите количество и цену</span>
+        </div>
+
+        <div class="table-scroll">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th scope="col" class="name-column">Наименование</th>
+                <th scope="col" class="quantity-column">Количество</th>
+                <th scope="col" class="unit-column">Единица</th>
+                <th scope="col" class="price-column">Цена</th>
+                <th scope="col" class="amount-column">Сумма строки</th>
+                <th scope="col" class="remove-column"><span class="visually-hidden">Удалить</span></th>
+              </tr>
+            </thead>
+            <tbody id="items-body"></tbody>
+          </table>
+        </div>
+
+        <button class="button button-secondary add-button" id="add-item" type="button">
+          <span aria-hidden="true">＋</span> Добавить позицию
+        </button>
+      </section>
+
+      <section class="total-panel" aria-live="polite" aria-atomic="true">
+        <div>
+          <p class="total-label">Итого к оплате</p>
+          <p class="total-caption">Общая сумма по всем позициям</p>
+        </div>
+        <output id="grand-total" class="grand-total" for="items-body">0 ₸</output>
+      </section>
+    </form>
+    <footer class="page-footer">Все расчёты выполняются в вашем браузере.</footer>
+  </main>
+</body>
+</html>
