@@ -18,7 +18,7 @@
       </div>
     </header>
 
-    <header class="print-header" aria-hidden="true">
+    <header class="print-header">
       <h1>Смета № <span id="print-number">—</span> от <span id="print-date">—</span></h1>
     </header>
 
@@ -99,7 +99,16 @@
 
       <div class="document-signature" aria-label="Подпись">Подпись ____________________</div>
       <div class="form-actions">
+        <button class="button button-secondary" id="new-estimate" type="button">Новая смета</button>
+        <button class="button button-secondary" id="copy-whatsapp" type="button">Скопировать для WhatsApp</button>
         <button class="button button-primary" id="save-pdf" type="button">Сохранить PDF</button>
+      </div>
+      <p id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden>Скопировано ✓</p>
+      <div id="copy-fallback" class="copy-fallback" hidden>
+        <label class="field" for="copy-text">
+          <span>Текст для ручного копирования</span>
+          <textarea id="copy-text" rows="7" readonly></textarea>
+        </label>
       </div>
     </form>
     <footer class="page-footer">Все расчёты выполняются в вашем браузере.</footer>

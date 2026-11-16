@@ -176,6 +176,10 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
 .add-button span { font-size: 20px; font-weight: 500; line-height: 1; }
 .form-actions { display: flex; justify-content: flex-end; padding-top: 2px; }
 .print-header, .document-signature { display: none; }
+.form-actions { flex-wrap: wrap; gap: 10px; }
+.copy-toast { margin: 12px 0 0; color: var(--accent-dark); font-weight: 700; text-align: right; }
+.copy-fallback { margin-top: 14px; }
+.copy-fallback textarea { min-height: 150px; }
 
 .total-panel {
   display: flex;
@@ -243,6 +247,7 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
   .total-caption { max-width: 175px; font-size: 11px; }
   .grand-total { font-size: clamp(24px, 7vw, 32px); }
   .form-actions .button { width: 100%; }
+  .copy-toast { text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -259,7 +264,7 @@ h1 { margin-bottom: 4px; font-size: clamp(25px, 4vw, 32px); letter-spacing: -.03
   body { min-width: 0; background: #fff; color: #17231d; font-size: 9.5pt; }
   .app-shell { width: 100%; max-width: none; margin: 0; padding: 0; }
   .page-header, .page-footer, .section-number, .items-note, .add-button,
-  .remove-column, .remove-cell, .form-actions, .visually-hidden { display: none !important; }
+  .remove-column, .remove-cell, .form-actions, .copy-toast, .copy-fallback, .visually-hidden { display: none !important; }
   .print-header { display: block; margin: 0 0 7mm; }
   .print-header h1 { margin: 0; font-size: 19pt; letter-spacing: 0; }
   #estimate-form { display: block; }
